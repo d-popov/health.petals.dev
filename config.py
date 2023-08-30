@@ -36,7 +36,14 @@ MODELS = [
         n_blocks=48,
         production=True,
     ),
-        ModelInfo(
+    ModelInfo(
+        dht_prefix="WizardCoder-Python-13B-V1_0",
+        name="WizardLM/WizardCoder-Python-13B-V1.0",
+        href="https://huggingface.co/WizardLM/WizardCoder-Python-13B-V1.0",
+        n_blocks=48,
+        production=True,
+    ),
+    ModelInfo(
         dht_prefix="WizardCoder-3B-V1_0",
         name="WizardLM/WizardCoder-3B-V1.0",
         href="https://huggingface.co/WizardLM/WizardCoder-3B-V1.0",
