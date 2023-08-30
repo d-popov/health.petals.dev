@@ -28,6 +28,13 @@ MODELS = [
         href="https://huggingface.co/codellama/CodeLlama-34b-Instruct-hf",
         n_blocks=48,
         production=True,
+    ),   
+    ModelInfo(
+        dht_prefix="WizardCoder-Python-34B-V1_0-hf",
+        name="WizardLM/WizardCoder-Python-34B-V1.0",
+        href="https://huggingface.co/WizardLM/WizardCoder-Python-34B-V1.0",
+        n_blocks=48,
+        production=True,
     ),
     ModelInfo(
         dht_prefix="Llama-2-70b-chat-hf",
