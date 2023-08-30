@@ -36,6 +36,13 @@ MODELS = [
         n_blocks=48,
         production=True,
     ),
+        ModelInfo(
+        dht_prefix="WizardCoder-3B-V1_0",
+        name="WizardLM/WizardCoder-3B-V1.0",
+        href="https://huggingface.co/WizardLM/WizardCoder-3B-V1.0",
+        n_blocks=48,
+        production=True,
+    ),
     ModelInfo(
         dht_prefix="Llama-2-70b-chat-hf",
         name="meta-llama/Llama-2-70b-chat-hf",
