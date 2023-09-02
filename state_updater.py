@@ -105,7 +105,7 @@ class StateUpdaterThread(threading.Thread):
             for peer_id, server in sorted(model_servers):
                 reachable = rpc_infos[peer_id]["ok"]
                 show_public_name = (
-                    len(server.blocks) >= 10 and
+                    len(server.blocks) >= 1 and
                     all(state == ServerState.ONLINE for _, state in server.blocks) and reachable
                 )
 
