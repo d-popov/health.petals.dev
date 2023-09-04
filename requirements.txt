@@ -1,3 +1,3 @@
-git+https://github.com/bigscience-workshop/petals
+git+https://github.com/d-popov/petals-ai.git
 Flask
 gunicorn
