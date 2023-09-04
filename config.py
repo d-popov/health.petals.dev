@@ -84,5 +84,5 @@ MODELS = [
     #     href="https://huggingface.co/bigscience/bloom",
     #     n_blocks=70,
     #     production=True,
-    ),
+    #),
 ]
