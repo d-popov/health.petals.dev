@@ -24,7 +24,7 @@ MODELS = [
     ModelInfo(
         dht_prefix="WizardCoder-Python-13B-V1-0-hf",
         repository="https://huggingface.co/WizardLM/WizardCoder-Python-13B-V1.0",
-        num_blocks=36,
+        num_blocks=42,
     ),
     ModelInfo(
         dht_prefix="WizardCoder-3B-V1_0",
