@@ -23,13 +23,46 @@
   <p>Bootstrap peers: <span class="bootstrap-map">{{ bootstrap_map|safe }}</span></p>
 </section>
 
-{% for model in model_reports %}
 <section>
   <p>
+    Swarm:
+    <span class="toc">
+    {% for model in model_reports %}
+    <a class="{{ model.state }}" href="#{{ model.short_name }}" title="DHT prefix: {{ model.dht_prefix }}">{{ model.short_name }}</a>
+    {% if not loop.last %}<span class="bull">&bull;</span>{% endif %}
+    {% endfor %}
+    </span>
+  </p>
+</section>
+
+<section>
+  <p>
+    Top contributors:
+    <span class="top-contributors">
+    {% for name, num_blocks in top_contributors.most_common(5) %}
+    {% if name.startswith('http://') or name.startswith('https://') %}
+    <a target="_blank" href="{{ name }}">{{ name.replace('http://', '').replace('https://', '').rstrip('/') | truncate(20, True, '…') }}</a>
+    {% else %}
+    {{ name|truncate(20, True, '…') }}
+    {% endif %}
+    <span class="gray">({{ num_blocks }} blocks)</span>
+    {% if not loop.last %}<span class="bull">&bull;</span>{% endif %}
+    {% endfor %}
+    </span>
+  </p>
+</section>
+
+{% for model in model_reports %}
+<section id="{{ model.short_name }}">
+  <p>
     Model
-    <a target="_blank" href="{{ model.href }}" title="DHT prefix: {{ model.dht_prefix }}">{{ model.name }}</a>
+    <a target="_blank" href="{{ model.repository }}" title="DHT prefix: {{ model.dht_prefix }}">{{ model.name }}</a>
     (<span class="{{ model.state }}">{{ model.state }}</span>):
   </p>
+
+  {% if not model.official %}
+  <p class="hint">This model is <b>not</b> officially supported. Use it at your own risk.</p>
+  {% endif %}
 
   <table class="servers">
     <thead>
@@ -46,7 +79,7 @@
         <td>Cache <a class="explain-cache" href="#">?</a></td>
         <td>Avl. <a class="explain-avl" href="#">?</a></td>
         <td>Pings <a class="explain-pings" href="#">?</a></td>
-        <td class="bm-header" colspan="{{ model.n_blocks + 1 }}">Served blocks</td>
+        <td class="bm-header" colspan="{{ model.num_blocks + 1 }}">Served blocks</td>
       </tr>
     </thead>
     <tbody>
@@ -166,7 +199,7 @@
 </footer>
 
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
-<script src="./static/health.js"></script>
+<script src="./static/health.js?v=3"></script>
 
 </body>
 </html>

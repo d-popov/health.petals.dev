@@ -1,7 +1,8 @@
 import datetime
 import time
 import threading
-from collections import defaultdict
+from collections import Counter, defaultdict
+from contextlib import suppress
 from dataclasses import asdict, dataclass, field
 from functools import partial
 from typing import List, Optional, Tuple
@@ -13,6 +14,7 @@ from petals.data_structures import ServerInfo, ServerState
 from petals.dht_utils import get_remote_module_infos
 
 import config
+from data_structures import ModelInfo
 from p2p_utils import check_reachability_parallel
 
 logger = hivemind.get_logger(__name__)
@@ -65,9 +67,27 @@ class StateUpdaterThread(threading.Thread):
             f'<span class="{state_name}">{self._STATE_CHARS[state_name]}</span>' for state_name in bootstrap_states
         )
 
+        models = config.MODELS[:]
+        model_index = self.dht.get("_petals.models", latest=True)
+        if model_index is not None and isinstance(model_index.value, dict):
+            official_dht_prefixes = {model.dht_prefix for model in models}
+            custom_models = []
+            for dht_prefix, model in model_index.value.items():
+                if dht_prefix in official_dht_prefixes:
+                    continue
+                with suppress(TypeError, ValueError):
+                    model_info = ModelInfo.from_dict(model.value)
+                    if model_info.repository is None or not model_info.repository.startswith("https://huggingface.co/"):
+                        continue
+                    model_info.dht_prefix = dht_prefix
+                    model_info.official = False
+                    custom_models.append(model_info)
+            models.extend(sorted(custom_models, key=lambda info: (-info.num_blocks, info.dht_prefix)))
+        logger.info(f"Fetching info for models {[info.name for info in models]}")
+
         block_ids = []
-        for model in config.MODELS:
-            block_ids += [f"{model.dht_prefix}.{i}" for i in range(model.n_blocks)]
+        for model in models:
+            block_ids += [f"{model.dht_prefix}.{i}" for i in range(model.num_blocks)]
 
         module_infos = get_remote_module_infos(
             self.dht,
@@ -95,9 +115,10 @@ class StateUpdaterThread(threading.Thread):
             self.dht.run_coroutine(partial(check_reachability_parallel, list(servers.keys()), fetch_info=True))
         )
 
+        top_contributors = Counter()
         model_reports = []
-        for model in config.MODELS:
-            all_blocks_found = n_found_blocks[model.dht_prefix] == model.n_blocks
+        for model in models:
+            all_blocks_found = n_found_blocks[model.dht_prefix] == model.num_blocks
             model_state = "healthy" if all_blocks_found and all_bootstrap_reachable else "broken"
 
             server_rows = []
@@ -108,11 +129,13 @@ class StateUpdaterThread(threading.Thread):
                     len(server.blocks) >= 1 and
                     all(state == ServerState.ONLINE for _, state in server.blocks) and reachable
                 )
+                if model.official and server.server_info.public_name and show_public_name:
+                    top_contributors[server.server_info.public_name] += len(server.blocks)
 
                 block_indices = [block_idx for block_idx, state in server.blocks if state != ServerState.OFFLINE]
                 block_indices = f"{min(block_indices)}:{max(block_indices) + 1}" if block_indices else ""
 
-                block_map = ['<td class="bm"> </td>' for _ in range(model.n_blocks)]
+                block_map = ['<td class="bm"> </td>' for _ in range(model.num_blocks)]
                 for block_idx, state in server.blocks:
                     state_name = state.name.lower()
                     if state == ServerState.ONLINE and not reachable:
@@ -140,7 +163,7 @@ class StateUpdaterThread(threading.Thread):
                 server_rows.append(row)
 
             report = asdict(model)
-            report.update({"state": model_state, "server_rows": server_rows})
+            report.update(name=model.name, short_name=model.short_name, state=model_state, server_rows=server_rows)
             model_reports.append(report)
 
         reachability_issues = [
@@ -153,6 +176,7 @@ class StateUpdaterThread(threading.Thread):
         with self.app.app_context():
             self.last_state = render_template("index.html",
                 bootstrap_map=bootstrap_map,
+                top_contributors=top_contributors,
                 model_reports=model_reports,
                 reachability_issues=reachability_issues,
                 last_updated=datetime.datetime.now(datetime.timezone.utc),
