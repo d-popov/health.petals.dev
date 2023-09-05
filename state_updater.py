@@ -28,7 +28,7 @@ class MergedServerInfo:
 
 
 class StateUpdaterThread(threading.Thread):
-    def __init__(self, dht: hivemind.DHT, app: Flask, update_period: int = 60, **kwargs):
+    def __init__(self, dht: hivemind.DHT, app: Flask, update_period: int = config.UPDATE_PERIOD, **kwargs):
         super().__init__(**kwargs)
         self.dht = dht
         self.app = app
