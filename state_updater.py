@@ -129,6 +129,7 @@ class StateUpdaterThread(threading.Thread):
                     len(server.blocks) >= 1 and
                     all(state == ServerState.ONLINE for _, state in server.blocks) and reachable
                 )
+                show_public_name = True # temporary overwrite to show public name while debugging
                 if model.official and server.server_info.public_name and show_public_name:
                     top_contributors[server.server_info.public_name] += len(server.blocks)
 
