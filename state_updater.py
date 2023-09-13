@@ -120,7 +120,7 @@ class StateUpdaterThread(threading.Thread):
         for model in models:
             all_blocks_found = n_found_blocks[model.dht_prefix] == model.num_blocks
             model_state = "healthy" if all_blocks_found and all_bootstrap_reachable else "broken"
-
+            logger.info(f"Model {model.name} is {model_state}. Found {n_found_blocks[model.dht_prefix]} / {model.num_blocks} blocks")
             server_rows = []
             model_servers = [(peer_id, server) for peer_id, server in servers.items() if server.model == model.dht_prefix]
             for peer_id, server in sorted(model_servers):

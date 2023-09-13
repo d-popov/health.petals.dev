@@ -14,22 +14,22 @@ MODELS = [
     ModelInfo(
         dht_prefix="CodeLlama-34b-Instruct-hf",
         repository="https://huggingface.co/codellama/CodeLlama-34b-Instruct-hf",
-        num_blocks=48,
+        num_blocks=80,
     ),   
     ModelInfo(
         dht_prefix="WizardCoder-Python-34B-V1_0-hf",
         repository="https://huggingface.co/WizardLM/WizardCoder-Python-34B-V1.0",
-        num_blocks=48,
+        num_blocks=80,
     ),
     ModelInfo(
         dht_prefix="WizardCoder-Python-13B-V1-0-hf",
         repository="https://huggingface.co/WizardLM/WizardCoder-Python-13B-V1.0",
-        num_blocks=42,
+        num_blocks=40,
     ),
     ModelInfo(
         dht_prefix="WizardCoder-3B-V1_0",
         repository="https://huggingface.co/WizardLM/WizardCoder-3B-V1.0",
-        num_blocks=24,
+        num_blocks=20,
     ),
     ModelInfo(
         dht_prefix="Llama-2-70b-chat-hf",
