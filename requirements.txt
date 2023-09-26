@@ -1,3 +1,5 @@
 git+https://github.com/d-popov/petals-ai.git
 Flask
-gunicorn
+flask-cors
+simplejson
+gunicorn[gthread]
