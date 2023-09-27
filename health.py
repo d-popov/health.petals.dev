@@ -66,15 +66,15 @@ def fetch_health_state(dht: hivemind.DHT) -> dict:
     top_contributors = Counter()
     model_reports = []
     for model in models:
+        blocks = np.zeros(model.num_blocks, dtype=bool)
         block_healthy = np.zeros(model.num_blocks, dtype=bool)
-        logger.info(f"Model {model.name} is {model_state}. Found {n_found_blocks[model.dht_prefix]} / {model.num_blocks} blocks")
         server_rows = []
         for peer_id, span in sorted(model_servers[model.dht_prefix].items()):
             reachable = reach_infos[peer_id]["ok"] if peer_id in reach_infos else True
             state = span.state.name.lower() if reachable else "unreachable"
             if state == "online":
                 block_healthy[span.start : span.end] = True
-
+            blocks[span.start : span.end] = True # mark all blocks that are covered by this span
             show_public_name = 1 #state == "online" and span.length >= 10
             if model.official and span.server_info.public_name and show_public_name:
                 top_contributors[span.server_info.public_name] += span.length
@@ -97,11 +97,13 @@ def fetch_health_state(dht: hivemind.DHT) -> dict:
                 row["cache_tokens_left_per_block"] = span.server_info.cache_tokens_left // (span.length * 2)
             server_rows.append(row)
 
+        model_state = "healthy" if block_healthy.all() else "broken"
+        logger.info(f"Model {model.name}({model.short_name}) is {model_state}. Found {block_healthy.sum()} / {model.num_blocks} blocks. {blocks.sum() - block_healthy.sum()} joining...")
         model_reports.append(
             dict(
                 name=model.name,
                 short_name=model.short_name,
-                state="healthy" if block_healthy.all() else "broken",
+                state=model_state,
                 server_rows=server_rows,
                 **asdict(model),
             )
